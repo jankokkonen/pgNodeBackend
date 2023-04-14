@@ -8,14 +8,14 @@ module.exports = class User {
     }
 
     static find(email) {
-        return db.execute(
-            'SELECT * FROM users WHERE email = ?', [email]
+        return db.query(
+            'SELECT * FROM users2 WHERE email = $1', [email]
         )
     }
 
     static save(user) {
-        return db.execute(
-            'INSERT INTO users (name, email, password) VALUES (? ,?, ?)', 
+        return db.query(
+            'INSERT INTO users2 (name, email, password) VALUES ($1, $2, $3)', 
             [user.name, user.email, user.password]
         )
     }

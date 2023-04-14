@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 })
 
 const pool = require('./util/database');
-// ...
+// testing
 pool.connect((err, client, done) => {
   if (err) throw err;
   console.log('Connected to database');
