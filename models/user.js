@@ -29,10 +29,11 @@ module.exports = class User {
             if (userCount > 0) {
                 throw new Error('Email already exists');
             } else {
+
                 // Muussa tapauksessa suoritetaan tietokantakysely, joka tallentaa uuden käyttäjän tietokantaan
                 const result = await db.query(
                     'INSERT INTO users2 (name, email, password) VALUES ($1, $2, $3)',
-                    [user.name, user.email, user.password]
+                    [user.name, user.email, user.password],
                 );
                 return result;
             }

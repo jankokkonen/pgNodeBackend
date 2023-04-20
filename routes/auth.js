@@ -36,6 +36,7 @@ router.post(
     ],
     authController.signup
 );
+router.post('/login', authController.login);
 
 // Viedään reititin moduulin käyttöön
 module.exports = router;

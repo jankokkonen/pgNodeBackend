@@ -10,6 +10,9 @@ const db = require('../util/database');
 // Tuodaan bcryptjs -kirjaston hash-funktio salasanan käsittelyä varten
 const bcrypt = require('bcryptjs');
 
+// Tuodaan json webtoken
+const jwt = require('jsonwebtoken');
+
 // Luodaan signup -kontrollerifunktio
 exports.signup = async (req, res, next) => {
     // Validoidaan pyynnön mukana tullut data express-validator -kirjaston avulla
@@ -48,3 +51,53 @@ exports.signup = async (req, res, next) => {
         next(err);
     }
 }
+// Luodaan login -kontrollerifunktio
+exports.login = async (req, res, next) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    
+  
+    try {
+      const user = await User.find(email);
+        console.log(user)
+      if (!user || user.length !== 1) {
+        const error = new Error("Sähköpostilla ei löydy käyttäjää");
+        error.statusCode = 401;
+        throw error;
+      }
+  
+      const storedUser = user[0][0];
+  
+      if (!storedUser || !storedUser.password) {
+        const error = new Error("Salasana on väärin");
+        error.statusCode = 401;
+        throw error;
+      }
+  
+      const isEqual = await bcrypt.compare(password, storedUser.password);
+  
+      if (!isEqual) {
+        const error = new Error("salasana on väärin2");
+        error.statusCode = 401;
+        throw error;
+      }
+  
+      const token = jwt.sign(
+        {
+          email: storedUser.email,
+          userId: storedUser.id,
+        },
+        "secretfortoken",
+        { expiresIn: "1h" }
+      );
+  
+      res.status(200).json({ token: token, userId: storedUser.id });
+    } catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+        console.log("Virhe controller/auth")
+      }
+      next(err);
+    }
+  };
+  
