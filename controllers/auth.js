@@ -59,17 +59,18 @@ exports.login = async (req, res, next) => {
   
     try {
       const user = await User.find(email);
-        console.log(user)
-      if (!user || user.length !== 1) {
+        // console.log(user)
+        const storedUser = user.rows[0];
+        console.log(storedUser);
+
+      if (!storedUser) {
         const error = new Error("Sähköpostilla ei löydy käyttäjää");
         error.statusCode = 401;
         throw error;
       }
   
-      const storedUser = user[0][0];
-  
       if (!storedUser || !storedUser.password) {
-        const error = new Error("Salasana on väärin");
+        const error = new Error("Käyttäjätunnus tai salasana on väärin");
         error.statusCode = 401;
         throw error;
       }
@@ -77,21 +78,22 @@ exports.login = async (req, res, next) => {
       const isEqual = await bcrypt.compare(password, storedUser.password);
   
       if (!isEqual) {
-        const error = new Error("salasana on väärin2");
+        const error = new Error("salasana on väärin");
         error.statusCode = 401;
         throw error;
       }
   
-      // const token = jwt.sign(
-      //   {
-      //     email: storedUser.email,
-      //     userId: storedUser.id,
-      //   },
-      //   "secretfortoken",
-      //   { expiresIn: "1h" }
-      // );
+      const token = jwt.sign(
+        {
+          email: storedUser.email,
+          userId: storedUser.id,
+        },
+        "secretfortoken",
+        { expiresIn: "1h" }
+      );
   
-      res.status(200).json({ userId: storedUser.id });
+      res.status(200).json({ token, userId: storedUser.id });
+
 
     } catch (err) {
       if (!err.statusCode) {
